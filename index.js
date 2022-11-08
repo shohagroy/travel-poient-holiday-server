@@ -37,7 +37,11 @@ const run = async () => {
     });
 
     app.get("/reviews", async (req, res) => {
-      const query = {};
+      const serviceID = req.query.id;
+
+      console.log(serviceID);
+
+      const query = { postID: serviceID };
       const cursor = reviewCollection.find(query).sort({ postTime: -1 });
       const result = await cursor.toArray();
 
