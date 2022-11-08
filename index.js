@@ -39,13 +39,32 @@ const run = async () => {
     app.get("/reviews", async (req, res) => {
       const serviceID = req.query.id;
 
-      console.log(serviceID);
-
       const query = { postID: serviceID };
       const cursor = reviewCollection.find(query).sort({ postTime: -1 });
       const result = await cursor.toArray();
 
       res.send(result);
+    });
+
+    app.get("/my-reviews", async (req, res) => {
+      const userEmail = req.query.email;
+
+      const query = { email: userEmail };
+      const cursor = reviewCollection.find(query).sort({ postTime: -1 });
+      const result = await cursor.toArray();
+
+      res.send(result);
+    });
+
+    app.delete("/my-reviews", async (req, res) => {
+      const id = req.query._id;
+
+      const query = { _id: ObjectId(id) };
+      const result = await reviewCollection.deleteOne(query);
+
+      if (result.deletedCount === 1) {
+        res.send(result);
+      }
     });
 
     app.get("/home", async (req, res) => {
