@@ -56,6 +56,26 @@ const run = async () => {
       res.send(result);
     });
 
+    app.put("/my-reviews", async (req, res) => {
+      const id = req.query._id;
+      const filter = { _id: ObjectId(id) };
+      const review = req.body;
+      const option = { upsert: true };
+      const updateReview = {
+        $set: {
+          review: review.review,
+          userReating: review.userReating,
+        },
+      };
+      const result = await reviewCollection.updateOne(
+        filter,
+        updateReview,
+        option
+      );
+      console.log(result);
+      res.send(result);
+    });
+
     app.delete("/my-reviews", async (req, res) => {
       const id = req.query._id;
 
