@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 
 const app = express();
@@ -20,28 +20,57 @@ const client = new MongoClient(uri, {
 
 const run = async () => {
   const serviceCollection = client.db("travel_point").collection("services");
+  const reviewCollection = client.db("travel_point").collection("user_review");
 
-  app.post("/service", async (req, res) => {
-    const service = req.body;
+  try {
+    app.post("/service", async (req, res) => {
+      const service = req.body;
 
-    const result = await serviceCollection.insertOne(service);
-    res.send(result);
-  });
+      const result = await serviceCollection.insertOne(service);
+      res.send(result);
+    });
 
-  app.get("/home", (req, res) => {
-    const query = {};
-    const cursor = serviceCollection.find(query);
-    const result = cursor.limit(3).toArray();
+    app.post("/review", async (req, res) => {
+      const review = req.body;
+      const result = await reviewCollection.insertOne(review);
+      res.send(result);
+    });
 
-    res.send(result);
-  });
-  app.get("/services", async (req, res) => {
-    const query = {};
-    const cursor = serviceCollection.find(query);
-    const result = await cursor.toArray();
+    app.get("/reviews", async (req, res) => {
+      const query = {};
+      const cursor = reviewCollection.find(query).sort({ postTime: -1 });
+      const result = await cursor.toArray();
 
-    res.send(result);
-  });
+      res.send(result);
+    });
+
+    app.get("/home", async (req, res) => {
+      const query = {};
+      const cursor = serviceCollection.find(query).sort({ publish: -1 });
+      const result = await cursor.limit(3).toArray();
+
+      res.send(result);
+    });
+    app.get("/services", async (req, res) => {
+      const query = {};
+      const cursor = serviceCollection.find(query).sort({ publish: -1 });
+      const result = await cursor.toArray();
+
+      res.send(result);
+    });
+
+    app.get("/services/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const cursor = serviceCollection.find(query);
+      const result = await cursor.toArray();
+
+      if (result) {
+      }
+      res.send(result);
+    });
+  } finally {
+  }
 };
 
 run().catch((err) => console.error(err));
