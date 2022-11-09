@@ -19,7 +19,7 @@ use mongodb database on this sarver. data get, post, delete, update (CRUD)
 - ### `server function`
 2. this setver wrok many function. CRUD api, json web token (jwt)
 
-This application is simple web application. I try to give every functon here. You are premium fill in this application.
+This server is simple web server. I try to give every function here. You are premium fill in this application.
 
 Finally, thank you for being with me so far.
 
