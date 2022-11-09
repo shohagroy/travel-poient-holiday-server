@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
+const jwt = require("jsonwebtoken");
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -23,8 +24,53 @@ const run = async () => {
   const reviewCollection = client.db("travel_point").collection("user_review");
 
   try {
+    // JSON WEB TOKEN
+    app.post("/jwt", (req, res) => {
+      const user = req.body;
+      const token = jwt.sign(
+        user,
+        process.env.REACT_APP_JWT_SECRET_ACCESS_TOKEN,
+        {
+          expiresIn: "1d",
+        }
+      );
+      res.send({ token });
+    });
+
+    // token verify functuin
+    const verifyTOken = (req, res, next) => {
+      const bearerToken = req.headers.authorization;
+
+      console.log(bearerToken);
+
+      if (!bearerToken) {
+        return res.status(401).sent({ message: "unauthorazin access" });
+      } else {
+        const token = bearerToken.split(" ")[1];
+
+        const secret = process.env.REACT_APP_JWT_SECRET_ACCESS_TOKEN;
+
+        console.log(secret);
+        console.log(token);
+
+        jwt.verify(token, secret, (err, decoded) => {
+          if (err) {
+            console.log(err);
+            return res.status(401).sent({ message: "unauthorazin access" });
+          }
+          req.decoded = decoded;
+        });
+      }
+
+      // next();
+    };
+
     app.post("/service", async (req, res) => {
       const service = req.body;
+
+      // const decoded = req.decoded;
+
+      // console.log(decoded);
 
       const result = await serviceCollection.insertOne(service);
       res.send(result);
@@ -72,7 +118,6 @@ const run = async () => {
         updateReview,
         option
       );
-      console.log(result);
       res.send(result);
     });
 
@@ -94,6 +139,7 @@ const run = async () => {
 
       res.send(result);
     });
+
     app.get("/services", async (req, res) => {
       const query = {};
       const cursor = serviceCollection.find(query).sort({ publish: -1 });
@@ -111,6 +157,27 @@ const run = async () => {
       if (result) {
       }
       res.send(result);
+    });
+
+    app.get("/my-services", async (req, res) => {
+      const userEmail = req.query.email;
+
+      const query = { authorEmail: userEmail };
+      const cursor = serviceCollection.find(query).sort({ postTime: -1 });
+      const result = await cursor.toArray();
+
+      res.send(result);
+    });
+
+    app.delete("/my-services", async (req, res) => {
+      const id = req.query._id;
+
+      const query = { _id: ObjectId(id) };
+      const result = await serviceCollection.deleteOne(query);
+
+      if (result.deletedCount === 1) {
+        res.send(result);
+      }
     });
   } finally {
   }
