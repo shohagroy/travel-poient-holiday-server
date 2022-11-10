@@ -84,7 +84,7 @@ const run = async () => {
 
     app.get("/my-reviews", verifyTOken, async (req, res) => {
       const userEmail = req.query.email;
-      const decoded = req.decoded;
+      const decoded = req.decoded.email;
 
       if (decoded !== decoded) {
         res.status(403).send({ message: "unauthorized access" });
@@ -127,7 +127,7 @@ const run = async () => {
     app.delete("/my-reviews", verifyTOken, async (req, res) => {
       const id = req.query._id;
       const userEmail = req.query.email;
-      const decoded = req.decoded;
+      const decoded = req.decoded.email;
 
       if (decoded !== userEmail) {
         res.status(403).send({ message: "unauthorized access" });
@@ -195,7 +195,7 @@ const run = async () => {
     app.delete("/my-services", verifyTOken, async (req, res) => {
       const id = req.query._id;
       const email = req.query.email;
-      const decoded = req.decoded;
+      const decoded = req.decoded.email;
       console.log(email, decoded.email);
 
       if (decoded !== email) {
